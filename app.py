@@ -1,21 +1,42 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
+import datetime
+import json
+from flask import Flask, render_template
 
-class handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type','text/html')
-        self.end_headers()
+app = Flask(__name__)
 
-        message = "Hello, World! Here is a GET response"
-        self.wfile.write(bytes(message, "utf8"))
+@app.route('/')
+def main():
+    return render_template("index.html", data=datetime.datetime.utcnow())
+
+@app.route('/about/')
+def about():
+    return render_template('about.html')
+
+
+@app.get('/contatos_direto_codigo')
+def contatos_direto_codigo():
+    f = open("dados/contatos.json", "r")
+    contatos_json = json.load(f)
+    print(contatos_json["contatos"][1]["nome"])
+
+    html_output = "<table>"
+    html_output += "<tr> <th>Nome</th> <th>Telefone</th> <th>Data de Nascimento</th> </tr>"
+    for contato in contatos_json["contatos"]:
+        html_output += "<tr>"
+        html_output += "<td>" + contato["nome"] + "</td>"
+        html_output += "<td>" + contato["telefone"] + "</td>"
+        html_output += "<td>" + contato["data_nascimento"] + "</td>"
+        html_output += "</tr>"
         
-    def do_POST(self):
-        self.send_response(200)
-        self.send_header('Content-type','text/html')
-        self.end_headers()
+    html_output += "</table>"
 
-        message = "Hello, World! Here is a POST response"
-        self.wfile.write(bytes(message, "utf8"))
+    return html_output
 
-with HTTPServer(('', 8000), handler) as server:
-    server.serve_forever()
+@app.get('/contatos')
+def contatos():
+    f = open("dados/contatos.json", "r")
+    contatos_json = json.load(f)
+    from pprint import pprint
+    pprint(contatos_json["contatos"])
+
+    return render_template("contatos.html", contatos=contatos_json["contatos"])

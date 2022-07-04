@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+<h1>{% block title %} Lista de contatos {% endblock %}</h1>
+<table>
+    <tr> <th>Nome</th> <th>Telefone</th> <th>Data de Nascimento</th> </tr>
+    {% for contato in contatos %}
+        <tr>
+            <td>{{contato.nome}}</td>
+            <td>{{contato.telefone}}</td>
+            <td>{{contato.data_nascimento}}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
