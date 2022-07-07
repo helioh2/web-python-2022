@@ -9,8 +9,7 @@ class MeuHandler(BaseHTTPRequestHandler):
         self.send_header('Content-type','text/html')
         self.end_headers()
 
-        print(self.requestline())
-
+        
         # CRIAR O CORPO DA RESPOSTA
         file_ = open("index.html", "r")
         mensagem = file_.read()
