@@ -34,9 +34,12 @@ def contatos_direto_codigo():
 
 @app.get('/contatos')
 def contatos():
-    f = open("dados/contatos.json", "r")
+    # CARREGA DADOS DE UM ARQUIVO
+    f = open("dados/contatos.json", "r", encoding="utf8")
     contatos_json = json.load(f)
+
     from pprint import pprint
     pprint(contatos_json["contatos"])
 
+    # RENDERIZA A PÁGINA COM OS DADOS DE CONTATOS
     return render_template("contatos.html", contatos=contatos_json["contatos"])
