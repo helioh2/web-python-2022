@@ -1,20 +1,24 @@
 {% extends 'base.html' %}
 
 {% block conteudo %}
-    <h1>{% block title %} Adicionar Contato {% endblock %}</h1>
+    <h1>{% block title %} Adicionar/Alterar Contato {% endblock %}</h1>
+
 
     <form action="{{url_for('adicionar_contato_action')}}" method="post">
+
+        <input type="text" id="id" name="id" value="{{contato.id}}" hidden="true">
+
         <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome"><br>
+        <input type="text" id="nome" name="nome" value="{{contato.nome}}"><br>
 
         <label for="telefone">Telefone:</label>
-        <input type="text" id="telefone" name="telefone"><br>
+        <input type="tel" id="telefone" name="telefone" value="{{contato.telefone}}"><br>
 
         <label for="data_nascimento">Data de nascimento:</label>
-        <input type="date" id="data_nascimento" name="data_nascimento"><br>
+        <input type="date" id="data_nascimento" name="data_nascimento" value="{{contato.data_nascimento}}"><br>
 
         <label for="detalhes">Detalhes:</label>
-        <textarea id="detalhes" name="detalhes" rows="4" cols="50"></textarea><br>
+        <textarea id="detalhes" name="detalhes" rows="4" cols="50">{{contato.detalhes}}</textarea><br>
         
         <input type="submit" value="Enviar">
       </form>

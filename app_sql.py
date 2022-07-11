@@ -6,25 +6,17 @@ from flask_sqlalchemy import SQLAlchemy
 import psycopg2
 import psycopg2.extras
 
-app = Flask(__name__)
+class Contato:
+    """
+    DTO = Data Transfer Object
+    """
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:root@localhost:5432/agenda'
-db = SQLAlchemy(app)
-
-
-class Contato(db.Model):
-    
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(80), nullable=False)
-    telefone = db.Column(db.String(20), unique=False, nullable=False)
-    data_nascimento = db.Column(db.Date, unique=False, nullable=False)
-    detalhes = db.Column(db.String, unique=False, nullable=True)
-
-    def __repr__(self):
-        return '<Contato %r>' % self.nome
-
-
+    def __init__(self, id, nome, telefone, data_nascimento, detalhes):
+        self.id = id
+        self.nome = nome
+        self.telefone = telefone
+        self.data_nascimento = data_nascimento
+        self.detalhes = detalhes
 
 
 
