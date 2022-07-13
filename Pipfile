@@ -7,8 +7,11 @@ name = "pypi"
 flask = "*"
 psycopg2-binary = "*"
 flask-sqlalchemy = "*"
+flask-migrate = "*"
 
 [dev-packages]
+names = "*"
+lorem = "*"
 
 [requires]
 python_version = "3.10"
