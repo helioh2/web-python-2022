@@ -13,3 +13,6 @@ class Contato(db.Model):
 
     def __repr__(self):
         return '<Contato %r>' % self.nome
+
+    def as_dict(self):
+       return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}

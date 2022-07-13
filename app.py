@@ -24,6 +24,15 @@ def about():
     return render_template('about.html')
 
 
+@app.get('/contatos_json')
+def contatos_json():
+
+    str_busca = "%"+request.args["busca"]+"%"
+
+    contatos = Contato.query.filter(Contato.nome.ilike(str_busca)).all()
+
+    return json.dumps([contato.as_dict() for contato in contatos])
+
 @app.get('/contatos')
 def contatos():
 
