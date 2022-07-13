@@ -13,6 +13,8 @@ app.config["SQLALCHEMY_ECHO"] = True
 db.init_app(app)
 migrate = Migrate(app, db)
 
+PER_PAGE_DEFAULT = 10
+
 @app.get('/')
 def main():
     return render_template("index.html", data=datetime.datetime.utcnow())
@@ -24,11 +26,20 @@ def about():
 
 @app.get('/contatos')
 def contatos():
-    
-    contatos = Contato.query.filter_by(_deleted=False).all()
 
-    return render_template("contatos.html", contatos=contatos)
+    try:
+        page = int(request.args["page"])
+    except:
+        page = 1
+        
+    paginacao = Contato.query.filter_by(_deleted=False)\
+                            .order_by(Contato.nome)\
+                            .paginate(page=page, per_page=PER_PAGE_DEFAULT)
 
+    contatos = paginacao.items
+    total_paginas = paginacao.pages
+
+    return render_template("contatos.html", contatos=contatos, total_paginas=total_paginas, pagina=page)
 
 
 @app.get('/adicionar_contato_form')
