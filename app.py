@@ -1,28 +1,30 @@
 import datetime
 import json
 from time import strptime
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, escape, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 import psycopg2
 import psycopg2.extras
 
-app = Flask(__name__)
+from validacao_form import validar_form
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:root@localhost:5432/agenda'
-db = SQLAlchemy(app)
+
+# app = Flask(__name__)
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:root@localhost:5432/agenda'
+# db = SQLAlchemy(app)
 
 
-class Contato(db.Model):
+# class Contato(db.Model):
     
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(80), nullable=False)
-    telefone = db.Column(db.String(20), unique=False, nullable=False)
-    data_nascimento = db.Column(db.Date, unique=False, nullable=False)
-    detalhes = db.Column(db.String, unique=False, nullable=True)
+#     id = db.Column(db.Integer, primary_key=True)
+#     nome = db.Column(db.String(80), nullable=False)
+#     telefone = db.Column(db.String(20), unique=False, nullable=False)
+#     data_nascimento = db.Column(db.Date, unique=False, nullable=False)
+#     detalhes = db.Column(db.String, unique=False, nullable=True)
 
-    def __repr__(self):
-        return '<Contato %r>' % self.nome
+#     def __repr__(self):
+#         return '<Contato %r>' % self.nome
 
 
 
@@ -79,6 +81,12 @@ def adicionar_contato_action():
     conn = psycopg2.connect("dbname=agenda user=postgres password=root")
     cursor_ = conn.cursor()
 
+    resultado_validacao = validar_form(request.form)
+
+    if resultado_validacao:  # se ele não for {}
+        contato = dict(request.form)
+        return render_template('adicionar_contato_form.html', contato=contato, erros_validacao=resultado_validacao)    
+
     nome = request.form["nome"]
     telefone = request.form["telefone"]
     data_nascimento = request.form["data_nascimento"]
@@ -112,10 +120,10 @@ def remover_contato_action():
     conn = psycopg2.connect("dbname=agenda user=postgres password=root")
     cursor_ = conn.cursor()
 
-    sql_ = "UPDATE contatos SET deletado='true' WHERE id={}".format(id_)
+    sql_ = "UPDATE contatos SET deletado='true' WHERE id=%s".format(id_)
 
-    cursor_.execute(sql_)
-
+    cursor_.execute(sql_, (id_,))
+    print(cursor_.query)
     conn.commit()
     conn.close()
 
@@ -129,12 +137,22 @@ def alterar_contato_form():
     conn = psycopg2.connect("dbname=agenda user=postgres password=root")
     cursor_ = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-    sql_ = "SELECT * FROM contatos WHERE deletado='false' AND id={}".format(id_)
+    sql_ = "SELECT * FROM contatos WHERE deletado='false' AND id=%s"
 
-    cursor_.execute(sql_)
+    cursor_.execute(sql_, (id_,))
     resultado = cursor_.fetchone()
 
     from pprint import pprint
     pprint(resultado)
 
     return render_template('adicionar_contato_form.html', contato=resultado)
+
+@app.get("/form_test_xss")
+def form_test_xss():
+    return render_template("form_test.html")
+
+@app.post("/form_test_action")
+def form_test_action():
+    campo = request.form["campo"]
+
+    return "<p> {} </p>".format(escape(campo))
