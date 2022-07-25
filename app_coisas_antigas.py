@@ -61,3 +61,32 @@ def contatos_com_objetos():
         contatos.append(contato)
     
     return render_template("contatos.html", contatos=contatos)
+
+
+
+##Login e logout com cookies:
+
+@app.route("/login_action", methods = ['POST', 'GET'])
+def login_action():
+
+    if request.method == "POST":
+        username = request.form.get("username")
+
+        ## TODO: AUTENTICAÇÃO
+
+        resp = make_response(render_template("index.html"))
+        resp.set_cookie('userId', username) # exemplo: cookie userId='fulano'
+        resp.set_cookie('zuera', 'never ends')
+
+        return resp
+
+    #else
+    return render_template("erro.html")
+    
+
+@app.get("/logout_action")
+def logout_action():
+    resp = make_response(render_template("index.html"))
+    resp.delete_cookie("userId")
+
+    return resp
