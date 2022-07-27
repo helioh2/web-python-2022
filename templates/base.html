@@ -16,17 +16,39 @@
 
 <body>
 
+    {% set pagina_atual = request.path %}
+    {% set usuario = session["user"] %}
+
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <div class="navbar-header">
                 <a class="navbar-brand" href="{{ url_for('main') }}">Agenda App</a>
             </div>
 
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="{{ url_for('main') }}">Home</a></li>
-                <li><a href="{{ url_for('about') }}">About</a></li>
-                <li><a href="{{ url_for('contatos')}}">Contatos</a></li>
-            </ul>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-left">
+                    <li {% if pagina_atual == '/' %}class="active"{% endif %}>
+                        <a href="/">Home</a>
+                    </li>
+                    <li {% if pagina_atual == '/about/' %}class="active"{% endif %}>
+                        <a href="/about">About</a></li>
+                    <li {% if pagina_atual == url_for('contatos') %}class="active"{% endif %}>
+                        <a href="{{ url_for('contatos')}}">Contatos</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                  {% if usuario %}
+                  <li>
+                    <a href="/logout_action">Logout</a></li>
+                  <li>
+                        Olá {{usuario.username}}</li>
+                  {% else %}
+                  <li>
+                    <a href="/login_form">Login</a></li>
+                  <li>
+                    <a href="/cadastrar_usuario_form">Cadastre-se</a></li>
+                  {% endif %}
+                </ul>
+            </div>
         </div>   
     </nav>
 

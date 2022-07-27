@@ -28,7 +28,7 @@ for i in range(N):
                                                 datetime.strptime("31/12/2012", "%d/%m/%Y"))
     detalhes = lorem.paragraph()
 
-    contato = Contato(nome=nome, telefone=telefone, data_nascimento=data_nascimento, detalhes=detalhes)
+    contato = Contato(nome=nome, telefone=telefone, data_nascimento=data_nascimento, detalhes=detalhes, id_usuario=1)
 
     db.session.add(contato)
 

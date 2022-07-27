@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+    <h1>{% block title %} Cadastrar Usuário {% endblock %}</h1>
+
+
+    <form action="{{url_for('cadastrar_usuario_action')}}" method="post">
+
+        <label for="username">Nome de usuário:</label>
+        <input type="text" id="username" name="username"><br>
+
+        <label for="senha">Senha:</label>
+        <input type="password" id="senha" name="senha"><br>
+
+     
+        <input type="submit" value="Enviar">
+      </form>
+{% endblock %}

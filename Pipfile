@@ -8,10 +8,15 @@ flask = "*"
 psycopg2-binary = "*"
 flask-sqlalchemy = "*"
 flask-migrate = "*"
+flask-session = "*"
 
 [dev-packages]
 names = "*"
 lorem = "*"
+black = "*"
 
 [requires]
 python_version = "3.10"
+
+[pipenv]
+allow_prereleases = true

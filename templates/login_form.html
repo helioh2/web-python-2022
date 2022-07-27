@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+    <h1>{% block title %} Login {% endblock %}</h1>
+
+    <form action="/login_action" method="post">
+        <label for="username">Nome do usuário:</label>
+        <input type="text" id="user" name="username" required>
+        <input type="password" id="senha" name="senha" required>
+        <input type="submit" value="Enviar">
+    </form>
+
+    <!-- <button id="b1" onmouseleave="document.getElementById('b1').style='color:black;'" onmouseenter="document.getElementById('b1').style='color:red;'" onclick="alert('OPA, É NOIS');">CLIQUE EM MIM</button> -->
+    
+{% endblock %}
