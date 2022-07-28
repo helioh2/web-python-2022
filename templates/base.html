@@ -28,7 +28,7 @@
 <body>
 
     {% set pagina_atual = request.path %}
-    {% set usuario = session["user"] if session["user"] else None %}
+    {% set usuario = session["user"] %}
 
     <nav class="navbar navbar-default">
         <div id="container1" class="container-fluid">
@@ -51,7 +51,7 @@
                   <li>
                     <a href="/logout_action">Logout</a></li>
                   <li>
-                        Olá {{usuario}}</li>
+                        Olá {{usuario.username}}</li>
                   {% else %}
                   <li>
                     <a href="/login_form">Login</a></li>
