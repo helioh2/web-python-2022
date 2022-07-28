@@ -46,9 +46,11 @@ def contatos_json():
 
     str_busca = "%" + request.args["busca"] + "%"
 
-    usuario = session
+    usuario = session["user"]
 
-    contatos = Contato.query.filter(Contato.nome.ilike(str_busca)).all()
+    contatos = Contato.query.filter_by(_deleted=False, id_usuario=usuario)\
+                            .filter(Contato.nome.ilike(str_busca))\
+                            .all()
 
     return json.dumps([contato.as_dict() for contato in contatos])
 
@@ -65,8 +67,8 @@ def contatos():
 
     paginacao = (
         Contato.query.filter_by(_deleted=False, id_usuario=usuario.id)
-        .order_by(Contato.nome)
-        .paginate(page=page, per_page=PER_PAGE_DEFAULT)
+                    .order_by(Contato.nome)
+                    .paginate(page=page, per_page=PER_PAGE_DEFAULT)
     )
 
     contatos = paginacao.items
