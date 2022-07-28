@@ -90,3 +90,17 @@ def logout_action():
     resp.delete_cookie("userId")
 
     return resp
+
+
+@app.get("/contatos_json")
+def contatos_json():
+    # CARREGA DADOS DE UM ARQUIVO
+    f = open("dados/contatos.json", "r", encoding="utf8")
+    contatos_json = json.load(f)
+
+    from pprint import pprint
+
+    pprint(contatos_json["contatos"])
+
+    # RENDERIZA A PÁGINA COM OS DADOS DE CONTATOS
+    return render_template("contatos.html", contatos=contatos_json["contatos"])

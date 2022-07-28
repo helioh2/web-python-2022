@@ -28,7 +28,7 @@
 <body>
 
     {% set pagina_atual = request.path %}
-    {% set userId = session["user"] %}
+    {% set usuario = session["user"] %}
 
     <nav class="navbar navbar-default">
         <div id="container1" class="container-fluid">
@@ -47,14 +47,16 @@
                         <a href="{{ url_for('contatos')}}">Contatos</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                  {% if userId %}
+                  {% if usuario %}
                   <li>
                     <a href="/logout_action">Logout</a></li>
                   <li>
-                        Olá {{userId}}</li>
+                        Olá {{usuario.username}}</li>
                   {% else %}
                   <li>
                     <a href="/login_form">Login</a></li>
+                    <li>
+                <a href="/cadastrar_usuario_form">Cadastrar</a></li>
 
                   {% endif %}
                 </ul>

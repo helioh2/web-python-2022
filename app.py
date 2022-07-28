@@ -1,6 +1,7 @@
 import datetime
 import json
 from time import strptime
+from typing import List
 from flask import (
     Flask,
     session,
@@ -12,9 +13,14 @@ from flask import (
     url_for,
 )
 from flask_sqlalchemy import SQLAlchemy
-from flask_session import Session
+
+from model import Contato, Usuario, db
+
 import psycopg2
 import psycopg2.extras
+from flask_migrate import Migrate
+
+from flask_session import Session
 
 from validacao_form import validar_form
 
@@ -24,22 +30,14 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:root@localhost:5432/agenda'
-# db = SQLAlchemy(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:root@localhost:5432/agenda'
+
+db.init_app(app)
+migrate = Migrate(app, db)
 
 
-# class Contato(db.Model):
 
-#     id = db.Column(db.Integer, primary_key=True)
-#     nome = db.Column(db.String(80), nullable=False)
-#     telefone = db.Column(db.String(20), unique=False, nullable=False)
-#     data_nascimento = db.Column(db.Date, unique=False, nullable=False)
-#     detalhes = db.Column(db.String, unique=False, nullable=True)
-
-#     def __repr__(self):
-#         return '<Contato %r>' % self.nome
-
+## Usuario 1 --> * Contato
 
 @app.get("/")
 def main():
@@ -51,37 +49,20 @@ def about():
     return render_template("about.html")
 
 
-@app.get("/contatos_json")
-def contatos_json():
-    # CARREGA DADOS DE UM ARQUIVO
-    f = open("dados/contatos.json", "r", encoding="utf8")
-    contatos_json = json.load(f)
-
-    from pprint import pprint
-
-    pprint(contatos_json["contatos"])
-
-    # RENDERIZA A PÁGINA COM OS DADOS DE CONTATOS
-    return render_template("contatos.html", contatos=contatos_json["contatos"])
-
-
 @app.get("/contatos")
 def contatos():
 
-    conn = psycopg2.connect("dbname=agenda user=postgres password=root")
-    cursor_ = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    # cursor_.execute("SELECT * FROM contatos WHERE deletado='false'")
 
-    cursor_.execute("SELECT * FROM contatos WHERE deletado='false'")
+    ## Pegar usuario logado, se existir:
+    usuario = session["user"]
 
-    resultados = cursor_.fetchall()
+    if not usuario:
+        return "É NECESSÁRIO ESTAR LOGADO PARA VER A LISTA DE CONTATOS"  # TODO: MELHORAR
 
-    conn.close()
+    contatos:List[Contato] = Contato.query.filter_by(id_usuario=usuario.id).all()
 
-    from pprint import pprint
-
-    pprint(resultados)
-
-    return render_template("contatos.html", contatos=resultados)
+    return render_template("contatos.html", contatos=contatos)
 
 
 @app.get("/adicionar_contato_form")
@@ -91,9 +72,6 @@ def adicionar_contato_form():
 
 @app.post("/adicionar_contato_action")
 def adicionar_contato_action():
-
-    conn = psycopg2.connect("dbname=agenda user=postgres password=root")
-    cursor_ = conn.cursor()
 
     resultado_validacao = validar_form(request.form)
 
@@ -105,28 +83,27 @@ def adicionar_contato_action():
             erros_validacao=resultado_validacao,
         )
 
+    usuario = session["user"]
+
+    if not usuario:
+        return "É NECESSÁRIO ESTAR LOGADO PARA ADICIONAR CONTATO"  # TODO: MELHORAR
+
+    #else
     nome = request.form["nome"]
     telefone = request.form["telefone"]
     data_nascimento = request.form["data_nascimento"]
-    # data_nascimento = datetime.datetime.strptime(data_nascimento_origem, "%d/%m/%Y")
     detalhes = request.form["detalhes"]
+   
+    contato = Contato(
+        nome=nome, 
+        telefone=telefone, 
+        data_nascimento=data_nascimento,
+        detalhes=detalhes,
+        id_usuario=usuario.id)
 
-    id_ = request.form["id"]
-
-    if id_:  # se id não é vazio
-        sql = """UPDATE contatos SET nome=%s, telefone=%s, data_nascimento=%s,
-                                    detalhes=%s WHERE id=%s"""
-        val = (nome, telefone, data_nascimento, detalhes, id_)
-    else:
-        sql = """INSERT INTO contatos (nome, telefone, data_nascimento, detalhes) 
-                                VALUES (%s, %s, %s, %s)"""
-        val = (nome, telefone, data_nascimento, detalhes)
-
-    cursor_.execute(sql, val)
-
-    conn.commit()
-    conn.close()
-
+    db.session.merge(contato)  # adiciona ou atualiza
+    db.session.commit()
+    
     return redirect(url_for("contatos"))
 
 
@@ -135,15 +112,9 @@ def remover_contato_action():
 
     id_ = request.args["id"]
 
-    conn = psycopg2.connect("dbname=agenda user=postgres password=root")
-    cursor_ = conn.cursor()
-
-    sql_ = "UPDATE contatos SET deletado='true' WHERE id=%s".format(id_)
-
-    cursor_.execute(sql_, (id_,))
-    print(cursor_.query)
-    conn.commit()
-    conn.close()
+    contato = Contato.query.filter_by(id=id_).first()
+    db.session.delete(contato)
+    db.session.commit()
 
     return redirect(url_for("contatos"))
 
@@ -152,19 +123,44 @@ def remover_contato_action():
 def alterar_contato_form():
     id_ = request.args["id"]
 
-    conn = psycopg2.connect("dbname=agenda user=postgres password=root")
-    cursor_ = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    contato = Contato.query.filter_by(id=id_).first()
 
-    sql_ = "SELECT * FROM contatos WHERE deletado='false' AND id=%s"
+    return render_template("adicionar_contato_form.html", contato=contato)
 
-    cursor_.execute(sql_, (id_,))
-    resultado = cursor_.fetchone()
 
-    from pprint import pprint
+@app.get("/cadastrar_usuario_form")
+def cadastrar_usuario_form():
+    return render_template("cadastrar.html")
 
-    pprint(resultado)
 
-    return render_template("adicionar_contato_form.html", contato=resultado)
+@app.route("/cadastrar_usuario_action", methods=["GET", "POST"])
+def cadastrar_usuario_action():
+
+    if request.method == "POST":
+        username = request.form.get("username")
+        senha = request.form.get("senha")
+
+        usuario = Usuario.query.filter_by(username=username).first()
+
+        if usuario:
+            return "USUÁRIO JA EXISTE"  ## TODO: MELHORAR ISSO
+
+        #else
+        usuario = Usuario(username=username)
+
+        usuario.set_password(senha)
+
+        db.session.add(usuario) ## INSERT
+
+        db.session.commit() ## COMMIT DA TRANSAÇÃO
+
+        # SETAR A SESSÃO (COOKIE)
+        session["user"] = usuario
+
+        return render_template("index.html")
+
+    # else
+    return render_template("erro.html")
 
 
 @app.get("/login_form")
@@ -177,10 +173,20 @@ def login_action():
 
     if request.method == "POST":
         username = request.form.get("username")
+        senha = request.form.get("senha")
 
-        ## TODO: AUTENTICAÇÃO
+        ## AUTENTICAÇÃO
+        usuario: Usuario = Usuario.query.filter_by(username=username).first()
 
-        session["user"] = username
+        if not usuario:
+            return "Usuário não existe"  ## TODO: MELHORAR ISSO
+
+        if not usuario.check_password(senha):
+            return "Senha incorreta"  ## TODO: MELHORAR ISSO
+
+        # else
+        session["user"] = usuario
+
         resp = make_response(render_template("index.html"))
 
         return resp
