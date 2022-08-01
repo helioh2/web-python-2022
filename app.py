@@ -12,7 +12,7 @@ from flask import (
     request,
     url_for,
 )
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import Pagination, SQLAlchemy
 
 from model import Contato, Usuario, db
 
@@ -35,6 +35,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:root@localhost:54
 db.init_app(app)
 migrate = Migrate(app, db)
 
+PER_PAGE = 10
 
 
 ## Usuario 1 --> * Contato
@@ -52,15 +53,31 @@ def about():
 @app.get("/contatos")
 def contatos():
 
-    # cursor_.execute("SELECT * FROM contatos WHERE deletado='false'")
-
     ## Pegar usuario logado, se existir:
-    usuario = session["user"]
+    usuario = None
+    if "user" in session.keys():
+        usuario = session["user"]
 
     if not usuario:
         return "É NECESSÁRIO ESTAR LOGADO PARA VER A LISTA DE CONTATOS"  # TODO: MELHORAR
 
-    contatos:List[Contato] = Contato.query.filter_by(id_usuario=usuario.id).all()
+    try:
+        pag = int(request.args.get("page")) ## pode dar erro de conversão de string que não é inteiro
+    except:
+        pag = 1
+
+    print("Página que veio na URL:", pag)
+
+    contatos:Pagination = (
+        Contato.query                                # objeto Query
+                .filter_by(id_usuario=usuario.id)    # objeto Query
+                .paginate(page=pag, per_page=PER_PAGE)       # objeto Pagination
+    )
+
+    print("Quantidade total de páginas:", contatos.pages)
+    print("Página atual:", contatos.page)
+    print("Tem mais páginas?", contatos.has_next)
+    print("Items:", contatos.items)
 
     return render_template("contatos.html", contatos=contatos)
 
