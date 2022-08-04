@@ -49,6 +49,28 @@ def main():
 def about():
     return render_template("about.html")
 
+@app.get("/contatos_json")
+def contatos_json():
+
+     ## Pegar usuario logado, se existir:
+    usuario = None
+    if "user" in session.keys():
+        usuario = session["user"]
+
+    if not usuario:
+        return {"erro": "Usuário não logado"}
+
+    busca_str = "%" + request.args.get("busca") + "%"
+    
+    contatos:List[Contato] = (
+        Contato.query                                # objeto Query
+                .filter_by(id_usuario=usuario.id)    # objeto Query
+                .filter(Contato.nome.ilike(busca_str))  # objeto Query
+                .all()  # List[Contato]
+    )
+
+    return json.dumps([contato.as_dict() for contato in contatos])
+
 
 @app.get("/contatos")
 def contatos():
