@@ -1,25 +1,28 @@
 {% extends 'base.html' %}
 
 {% block conteudo %}
-    <h1>{% block title %} Adicionar/Alterar Contato {% endblock %}</h1>
+<h1>{% block title %} Adicionar/Alterar Contato {% endblock %}</h1>
 
 
-    <form action="{{url_for('adicionar_contato_action')}}" method="post">
+<form action="{{url_for('adicionar_contato_action')}}" method="post">
 
-        <input type="text" id="id" name="id" value="{{contato.id if contato else ''}}" hidden="true">
+  <input type="text" id="id" name="id" value="{{contato.id if contato else ''}}" hidden="true">
 
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome" value="{{contato.nome if contato else ''}}" required minlength="3"> {{erros_validacao.nome if erros_validacao and erros_validacao.nome else ''}} <br>
+  <label for="nome">Nome:</label>
+  <input type="text" id="nome" name="nome" value="{{contato.nome if contato else ''}}" required minlength="3">
+  {{erros_validacao.nome if erros_validacao and erros_validacao.nome else ''}} <br>
 
-        <label for="telefone">Telefone:</label>
-        <input type="tel" id="telefone" name="telefone" value="{{contato.telefone if contato else ''}}" required minlength="8" maxlength="12"> {{erros_validacao.telefone if erros_validacao and erros_validacao.telefone else ''}}<br>
+  <label for="telefone">Telefone:</label>
+  <input type="tel" id="telefone" name="telefone" value="{{contato.telefone if contato else ''}}" required minlength="8"
+    maxlength="12"> {{erros_validacao.telefone if erros_validacao and erros_validacao.telefone else ''}}<br>
 
-        <label for="data_nascimento">Data de nascimento:</label>
-        <input type="date" id="data_nascimento" name="data_nascimento" value="{{contato.data_nascimento if contato else ''}}"><br>
+  <label for="data_nascimento">Data de nascimento:</label>
+  <input type="date" id="data_nascimento" name="data_nascimento"
+    value="{{contato.data_nascimento if contato else ''}}"><br>
 
-        <label for="detalhes">Detalhes:</label>
-        <textarea id="detalhes" name="detalhes" rows="4" cols="50">{{contato.detalhes if contato else ''}}</textarea><br>
-        
-        <input type="submit" value="Enviar">
-      </form>
+  <label for="detalhes">Detalhes:</label>
+  <textarea id="detalhes" name="detalhes" rows="4" cols="50">{{contato.detalhes if contato else ''}}</textarea><br>
+
+  <input type="submit" value="Enviar">
+</form>
 {% endblock %}

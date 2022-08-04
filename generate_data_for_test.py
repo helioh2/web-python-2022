@@ -9,7 +9,8 @@ import names
 
 app.app_context().push()
 
-N=100
+N = 100
+
 
 def choose_random_date_between(start_date, end_date):
     time_between_dates = end_date - start_date
@@ -23,12 +24,20 @@ def choose_random_date_between(start_date, end_date):
 
 for i in range(N):
     nome = names.get_full_name()
-    telefone = "".join([str(randrange(0,10)) for _ in range(8)])
-    data_nascimento = choose_random_date_between(datetime.strptime("01/01/1980", "%d/%m/%Y"), 
-                                                datetime.strptime("31/12/2012", "%d/%m/%Y"))
+    telefone = "".join([str(randrange(0, 10)) for _ in range(8)])
+    data_nascimento = choose_random_date_between(
+        datetime.strptime("01/01/1980", "%d/%m/%Y"),
+        datetime.strptime("31/12/2012", "%d/%m/%Y"),
+    )
     detalhes = lorem.paragraph()
 
-    contato = Contato(nome=nome, telefone=telefone, data_nascimento=data_nascimento, detalhes=detalhes, id_usuario=2)
+    contato = Contato(
+        nome=nome,
+        telefone=telefone,
+        data_nascimento=data_nascimento,
+        detalhes=detalhes,
+        id_usuario=2,
+    )
 
     db.session.add(contato)
 

@@ -3,25 +3,87 @@
 {% block conteudo %}
 <h1>{% block title %} Lista de contatos {% endblock %}</h1>
 
+{% set page_atual = request.args.get("page")|int if request.args.get("page") else 1  %}
 
-<table class="table table-striped">
-    <thead>
-    <tr> <th>Nome</th> <th>Telefone</th> <th>Data de Nascimento</th> </tr>
-    </thead>
+<form action="#" class="form-group">
+    <label for="busca">Busca: </label>
+    <input onkeyup="buscar();" type="text" class="form-control" id="busca" name="busca">
+</form>
 
-    <tbody>
-    {% for contato in contatos %}
-        <tr>
-            <td>{{contato.nome}}</td>
-            <td>{{contato.telefone}}</td>
-            <td>{{contato.data_nascimento.strftime("%d/%m/%Y")}}</td>
-            <td><a href="{{url_for('remover_contato_action')}}?id={{contato.id}}"><span class="glyphicon glyphicon-trash"></a></td>
-            <td><a href="{{url_for('alterar_contato_form')}}?id={{contato.id}}">Alterar</a></td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
+
+<div id="table-container">
+    <table class="table table-striped">
+        <thead>
+        <tr> <th>Nome</th> <th>Telefone</th> <th>Data de Nascimento</th> </tr>
+        </thead>
+
+        <tbody>
+        {% for contato in contatos.items %}
+            <tr>
+                <td>{{contato.nome}}</td>
+                <td>{{contato.telefone}}</td>
+                <td>{{contato.data_nascimento.strftime("%d/%m/%Y")}}</td>
+                <td><a href="{{url_for('remover_contato_action')}}?id={{contato.id}}"><span class="glyphicon glyphicon-trash"></a></td>
+                <td><a href="{{url_for('alterar_contato_form')}}?id={{contato.id}}">Alterar</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul class="pagination">
+        {% for i in range(1, contatos.pages + 1) %}
+            <li
+            {% if page_atual and page_atual == i %}class="active"{% endif %}
+            ><a href="/contatos?page={{i}}">{{i}}</a></li>
+        {% endfor %}
+    </ul>
+
+</div>
 
 <p><a href="{{ url_for('adicionar_contato_form') }}">Adicionar Contato</a></p>
 
+
+<script>
+
+    //console.log(document.getElementById("table-container").innerHTML)
+
+    listaOriginal = document.getElementById("table-container").innerHTML;
+
+    function buscar(){
+
+        buscaStr = document.getElementById("busca").value;
+        //console.log(buscaStr);
+
+        fetch("contatos_json?busca="+buscaStr, {method: "GET"})
+            .then(res => {  //PEGA A RESPOSTA NA VARIAVEL res
+                console.log(res.ok); // true
+                console.log(res.status); // 200
+                return res.json();  // RETORNA O JSON DA RESPOSTA
+              })
+            .then(function(json){ // PEGA O JSON DA RESPOSTA E CONSTRÓI A TABELA HTML
+
+                console.log(json);
+                document.getElementById("table-container").innerHTML = "BUSCANDO..."
+    
+                htmlPart = "<table class='table table-striped'> <thead>  <tr> <th>Nome</th> <th>Telefone</th> <th>Data de Nascimento</th> </tr> </thead> <tbody>";
+                json.forEach( function(item, index){
+                    htmlPart += "<tr>";
+                    htmlPart += "<td>"+item["nome"]+"</td>";
+                    htmlPart += "<td>"+item["telefone"]+"</td>";
+                    htmlPart += "<td>"+item["data_nascimento"]+"</td>";
+                    htmlPart += "</tr>";
+                })
+                htmlPart += "</tbody>";
+                htmlPart += "</table>";
+    
+                document.getElementById("table-container").innerHTML = htmlPart
+
+            })
+     
+
+    }
+
+</script>
+
 {% endblock %}
+
