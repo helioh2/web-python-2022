@@ -1,3 +1,5 @@
 flask_session
 .vscode
 __pycache__
+run_db_remote.sh
+run_migration_remote.sh

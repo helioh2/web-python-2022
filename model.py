@@ -17,6 +17,8 @@ class Usuario(db.Model):
         return check_password_hash(self.password_hash, password)
 
 
+## Usuario 1 --> * Contato
+
 class Contato(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)

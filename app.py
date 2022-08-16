@@ -13,6 +13,7 @@ from flask import (
     url_for,
 )
 from flask_sqlalchemy import Pagination, SQLAlchemy
+from config import setup_database
 
 from model import Contato, Usuario, db
 
@@ -30,15 +31,13 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:root@localhost:5432/agenda'
+setup_database(app)
 
 db.init_app(app)
 migrate = Migrate(app, db)
 
 PER_PAGE = 10
 
-
-## Usuario 1 --> * Contato
 
 @app.get("/")
 def main():
@@ -101,7 +100,7 @@ def contatos():
     print("Tem mais páginas?", contatos.has_next)
     print("Items:", contatos.items)
 
-    return render_template("contatos.html", contatos=contatos)
+    return render_template("contatos.html", contatos=contatos)  #mandando dados para View
 
 
 @app.get("/adicionar_contato_form")
@@ -240,16 +239,3 @@ def logout_action():
     session["user"] = None
 
     return resp
-
-
-@app.get("/form_test_xss")
-def form_test_xss():
-    return render_template("form_test.html")
-
-
-@app.post("/form_test_action")
-def form_test_action():
-    campo = request.form["campo"]
-
-    return "<p> {} </p>".format(escape(campo))
-
