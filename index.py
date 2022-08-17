@@ -17,8 +17,6 @@ from config import setup_database
 
 from model import Contato, Usuario, db
 
-import psycopg2
-import psycopg2.extras
 from flask_migrate import Migrate
 
 from flask_session import Session

@@ -1,6 +1,6 @@
 # EXECUTAR SOMENTE NO GIT BASH OU TERMINAL DO LINUX
 
-export FLASK_APP=app
+export FLASK_APP=index
 export FLASK_ENV=development
 export DB_HOST=localhost
 export DB_USER=postgres

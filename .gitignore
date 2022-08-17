@@ -3,3 +3,4 @@ flask_session
 __pycache__
 run_db_remote.sh
 run_migration_remote.sh
+.vercel
