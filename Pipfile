@@ -8,7 +8,7 @@ flask = "*"
 flask-sqlalchemy = "*"
 flask-session = "*"
 flask-migrate = "*"
-psycopg2 = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 black = "*"
