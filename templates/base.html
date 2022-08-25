@@ -52,6 +52,16 @@
                     <a href="/logout_action">Logout</a></li>
                   <li>
                         Olá {{usuario.username}}</li>
+                    <li><img 
+                            class="dropdown-toggle" 
+                            data-toggle="dropdown"
+                            width="50px" 
+                            height="50px" 
+                            src="../static/files/users/{{usuario.id}}"/>
+                            <ul class="dropdown-menu">
+                                <li><a href="/alterar_usuario_form">Alterar cadastro</a></li>
+                            </ul>    
+                    </li>
                   {% else %}
                   <li>
                     <a href="/login_form">Login</a></li>

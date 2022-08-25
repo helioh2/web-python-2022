@@ -1,5 +1,7 @@
 import datetime
 import json
+import os
+import pathlib
 from time import strptime
 from typing import List
 from flask import (
@@ -25,6 +27,10 @@ from validacao_form import validar_form
 
 app = Flask(__name__)
 
+UPLOAD_FOLDER = 'static/files'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
@@ -35,6 +41,14 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 PER_PAGE = 10
+
+
+def extension(filename):
+    return filename.rsplit('.', 1)[1].lower()
+
+def allowed_file(filename):
+    return '.' in filename and \
+           extension(filename) in ALLOWED_EXTENSIONS
 
 
 @app.get("/")
@@ -169,6 +183,16 @@ def cadastrar_usuario_form():
     return render_template("cadastrar.html")
 
 
+@app.get("/alterar_usuario_form")
+def alterar_usuario_form():
+    try:
+        usuario = session.get("user")
+    except:
+        return "USUÁRIO NÃO LOGADO"
+
+    return render_template("cadastrar.html", usuario=usuario)
+
+
 @app.route("/cadastrar_usuario_action", methods=["GET", "POST"])
 def cadastrar_usuario_action():
 
@@ -177,18 +201,23 @@ def cadastrar_usuario_action():
         senha = request.form.get("senha")
 
         usuario = Usuario.query.filter_by(username=username).first()
-
-        if usuario:
-            return "USUÁRIO JA EXISTE"  ## TODO: MELHORAR ISSO
-
-        #else
-        usuario = Usuario(username=username)
+        
+        if not usuario:
+            usuario = Usuario(username=username)
 
         usuario.set_password(senha)
 
-        db.session.add(usuario) ## INSERT
+        db.session.merge(usuario) 
 
         db.session.commit() ## COMMIT DA TRANSAÇÃO
+
+        if 'foto' in request.files:
+            foto = request.files['foto']
+            if foto and allowed_file(foto.filename):
+                pathlib.Path(app.config['UPLOAD_FOLDER'], "users").mkdir(exist_ok=True)
+                filename = str(usuario.id)
+                foto.save(os.path.join(app.config['UPLOAD_FOLDER'], "users", filename))
+
 
         # SETAR A SESSÃO (COOKIE)
         session["user"] = usuario
@@ -197,6 +226,9 @@ def cadastrar_usuario_action():
 
     # else
     return render_template("erro.html")
+
+
+
 
 
 @app.get("/login_form")

@@ -4,14 +4,20 @@
     <h1>{% block title %} Cadastrar Usuário {% endblock %}</h1>
 
 
-    <form action="{{url_for('cadastrar_usuario_action')}}" method="post">
+    <form enctype=multipart/form-data action="/cadastrar_usuario_action" method="post">
 
         <label for="username">Nome de usuário:</label>
-        <input type="text" id="username" name="username"><br>
+        <input type="text" id="username" name="username" value="{{usuario.username if usuario else ''}}"><br>
 
         <label for="senha">Senha:</label>
         <input type="password" id="senha" name="senha"><br>
-
+        
+        {% if usuario %}
+        <label>Foto atual:</label>
+        <img width="200" height="200" src="../static/files/users/{{usuario.id}}"/><br>
+        {% endif %}
+        <label for="myfile">Carregue uma foto:</label>
+        <input type="file" id="foto" name="foto">
      
         <input type="submit" value="Enviar">
       </form>
